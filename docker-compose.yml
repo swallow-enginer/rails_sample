@@ -1,0 +1,17 @@
+version: '3' #docker-composeのバージョン
+services:    #アプリケーションを動かすための要素
+  db:
+    image: postgres  #postgresのimageの使用
+    environment:     #環境変数の受け渡し
+      POSTGRES_HOST_AUTH_METHOD: 'trust'  #パスワードなしで接続
+    volumes:         #ディレクトリのマウント設定
+      - ./tmp/db:/var/lib/postgresql/data
+  web:
+    build: .         #作業ディレクトリの指定
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:      #依存関係の設定（db⇒webの順番で取り込む）
+      - db
